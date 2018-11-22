@@ -130,13 +130,24 @@ GPIO_InitTypeDef  GPIO_InitStruct;
 //    /* Enable GPIOB  Clock (to be able to program the configuration
 //    registers) and configure for LED output. */
     __GPIOG_CLK_ENABLE();
-    __HAL_RCC_GPIOJ_CLK_ENABLE();
 
-    GPIO_InitStruct.Pin = GPIO_PIN_13;
+      /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOJ_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+
+
+    GPIO_InitStruct.Pin = GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    HAL_GPIO_Init( GPIOJ, &GPIO_InitStruct );
+    HAL_GPIO_Init( GPIOC, &GPIO_InitStruct );
 
 //    MX_GPIO_Init();
 
@@ -149,43 +160,41 @@ static void prvSystemClockConfig( void )
 {
     /* The system Clock is configured as follow :
         System Clock source            = PLL (HSE)
-        SYSCLK(Hz)                     = 200000000
-        HCLK(Hz)                       = 200000000
+        SYSCLK(Hz)                     = 200,000,000
+        HCLK(Hz)                       = 200,000,000
         AHB Prescaler                  = 1
         APB1 Prescaler                 = 4
         APB2 Prescaler                 = 2
-        HSE Frequency(Hz)              = 25000000
-        PLL_M                          = 25
-        PLL_N                          = 400
+        HSE Frequency(Hz)              = 24000000
+        PLL_M                          = 12
+        PLL_N                          = 216
         PLL_P                          = 2
-        PLL_Q                          = 7
+        PLL_Q                          = 9
         VDD(V)                         = 3.3
         Main regulator output voltage  = Scale1 mode
-        Flash Latency(WS)              = 7 */
+        Flash Latency(WS)              = 3 */
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_OscInitTypeDef RCC_OscInitStruct;
 
     /* Enable HSE Oscillator and activate PLL with HSE as source */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-    RCC_OscInitStruct.HSICalibrationValue = 16;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-    RCC_OscInitStruct.PLL.PLLM = 8;
-    RCC_OscInitStruct.PLL.PLLN = 192;
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
-    RCC_OscInitStruct.PLL.PLLQ = 4;
-
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 12;
+  RCC_OscInitStruct.PLL.PLLN = 216;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 9;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
     /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
     clocks dividers */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                                |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
     configASSERT( HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) == HAL_OK );
 }
