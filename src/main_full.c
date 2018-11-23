@@ -125,7 +125,7 @@ purpose of ensuring parameters are passed into tasks correctly. */
 #define mainTIMER_TEST_PERIOD				( 50 )
 
 /* The LED is used to show the demo status.  (not connected on Rev A hardware) */
-#define mainTOGGLE_LED()	HAL_GPIO_TogglePin( GPIOJ, GPIO_PIN_13 )
+#define mainTOGGLE_LED()	{ HAL_GPIO_TogglePin( GPIOJ, GPIO_PIN_13 ); HAL_GPIO_TogglePin( GPIOC, GPIO_PIN_6 ); HAL_GPIO_TogglePin( GPIOC, GPIO_PIN_7 ); }
 
 /*-----------------------------------------------------------*/
 
