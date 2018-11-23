@@ -40,6 +40,7 @@
  extern "C" {
 #endif
 
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
@@ -75,8 +76,9 @@
 /* #define HAL_SD_MODULE_ENABLED   */
 /* #define HAL_MMC_MODULE_ENABLED   */
 /* #define HAL_SPDIFRX_MODULE_ENABLED   */
-/* #define HAL_SPI_MODULE_ENABLED   */
-/* #define HAL_UART_MODULE_ENABLED   */
+#define HAL_SPI_MODULE_ENABLED
+#define HAL_TIM_MODULE_ENABLED
+#define HAL_UART_MODULE_ENABLED
 /* #define HAL_USART_MODULE_ENABLED   */
 /* #define HAL_IRDA_MODULE_ENABLED   */
 /* #define HAL_SMARTCARD_MODULE_ENABLED   */
@@ -87,8 +89,9 @@
 /* #define HAL_DSI_MODULE_ENABLED   */
 /* #define HAL_JPEG_MODULE_ENABLED   */
 /* #define HAL_MDIOS_MODULE_ENABLED   */
-/* #define HAL_SMBUS_MODULE_ENABLED   */
+#define HAL_SMBUS_MODULE_ENABLED
 /* #define HAL_MMC_MODULE_ENABLED   */
+/* #define HAL_EXTI_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_DMA_MODULE_ENABLED
 #define HAL_RCC_MODULE_ENABLED
@@ -96,7 +99,6 @@
 #define HAL_PWR_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
-#define HAL_TIM_MODULE_ENABLED
 
 /* ########################## HSE/HSI Values adaptation ##################### */
 /**
@@ -105,7 +107,7 @@
   *        (when HSE is used as system clock source, directly or through the PLL).  
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)25000000U) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    ((uint32_t)24000000U) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
@@ -157,10 +159,10 @@
   * @brief This is the HAL system configuration section
   */     
 #define  VDD_VALUE                    ((uint32_t)3300U) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)0x0FU) /*!< tick interrupt priority */
+#define  TICK_INT_PRIORITY            ((uint32_t)0U) /*!< tick interrupt priority */
 #define  USE_RTOS                     0U
-#define  PREFETCH_ENABLE              1U /* To enable prefetch */
-#define  ART_ACCLERATOR_ENABLE        1U /* To enable ART Accelerator */
+#define  PREFETCH_ENABLE              0U
+#define  ART_ACCLERATOR_ENABLE        0U /* To enable instruction cache and prefetch */
 
 /* ########################## Assert Selection ############################## */
 /**
@@ -220,20 +222,10 @@
 #define PHY_JABBER_DETECTION            ((uint16_t)0x0002U)  /*!< Jabber condition detected            */
   
 /* Section 4: Extended PHY Registers */
-
 #define PHY_SR                          ((uint16_t)0x10U)    /*!< PHY status register Offset                      */
-#define PHY_MICR                        ((uint16_t)0x11U)    /*!< MII Interrupt Control Register                  */
-#define PHY_MISR                        ((uint16_t)0x12U)    /*!< MII Interrupt Status and Misc. Control Register */
- 
-#define PHY_LINK_STATUS                 ((uint16_t)0x0001U)  /*!< PHY Link mask                                   */
+
 #define PHY_SPEED_STATUS                ((uint16_t)0x0002U)  /*!< PHY Speed mask                                  */
 #define PHY_DUPLEX_STATUS               ((uint16_t)0x0004U)  /*!< PHY Duplex mask                                 */
-
-#define PHY_MICR_INT_EN                 ((uint16_t)0x0002U)  /*!< PHY Enable interrupts                           */
-#define PHY_MICR_INT_OE                 ((uint16_t)0x0001U)  /*!< PHY Enable output interrupt events              */
-
-#define PHY_MISR_LINK_INT_EN            ((uint16_t)0x0020U)  /*!< Enable Interrupt on change of link status       */
-#define PHY_LINK_INTERRUPT              ((uint16_t)0x2000U)  /*!< PHY link status interrupt mask                  */
 
 /* ################## SPI peripheral configuration ########################## */
 
@@ -242,7 +234,7 @@
 * Deactivated: CRC code cleaned from driver
 */
 
-#define USE_SPI_CRC                     1U
+#define USE_SPI_CRC                     0U
 
 /* Includes ------------------------------------------------------------------*/
 /**
@@ -252,6 +244,10 @@
 #ifdef HAL_RCC_MODULE_ENABLED
   #include "stm32f7xx_hal_rcc.h"
 #endif /* HAL_RCC_MODULE_ENABLED */
+
+#ifdef HAL_EXTI_MODULE_ENABLED
+  #include "stm32f7xx_hal_exti.h"
+#endif /* HAL_EXTI_MODULE_ENABLED */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
   #include "stm32f7xx_hal_gpio.h"
@@ -272,10 +268,6 @@
 #ifdef HAL_CAN_MODULE_ENABLED
   #include "stm32f7xx_hal_can.h"
 #endif /* HAL_CAN_MODULE_ENABLED */
-
-#ifdef HAL_CAN_LEGACY_MODULE_ENABLED
-  #include "stm32f7xx_hal_can_legacy.h"
-#endif /* HAL_CAN_LEGACY_MODULE_ENABLED */
 
 #ifdef HAL_CEC_MODULE_ENABLED
   #include "stm32f7xx_hal_cec.h"
@@ -373,6 +365,10 @@
  #include "stm32f7xx_hal_sd.h"
 #endif /* HAL_SD_MODULE_ENABLED */
 
+#ifdef HAL_MMC_MODULE_ENABLED
+ #include "stm32f7xx_hal_mmc.h"
+#endif /* HAL_MMC_MODULE_ENABLED */
+
 #ifdef HAL_SPDIFRX_MODULE_ENABLED
  #include "stm32f7xx_hal_spdifrx.h"
 #endif /* HAL_SPDIFRX_MODULE_ENABLED */
@@ -427,16 +423,12 @@
 
 #ifdef HAL_MDIOS_MODULE_ENABLED
  #include "stm32f7xx_hal_mdios.h"
-#endif /* HAL_MDIOS_MODULE_ENABLED */
+#endif /* HAL_MDIOS_MODULE_ENABLED */   
 
 #ifdef HAL_SMBUS_MODULE_ENABLED
  #include "stm32f7xx_hal_smbus.h"
 #endif /* HAL_SMBUS_MODULE_ENABLED */
 
-#ifdef HAL_MMC_MODULE_ENABLED
- #include "stm32f7xx_hal_mmc.h"
-#endif /* HAL_MMC_MODULE_ENABLED */
-   
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
 /**
@@ -453,7 +445,6 @@
 #else
   #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
-
 
 #ifdef __cplusplus
 }
